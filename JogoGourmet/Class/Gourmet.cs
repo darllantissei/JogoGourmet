@@ -50,6 +50,9 @@ namespace JogoGourmet.Class
             };            
         }
 
+        /// <summary>
+        /// Iniciar o jogo de adivinhação
+        /// </summary>
         public void IniciarPergunta()
         {
             RespostaUsuario = MessageBox.Show("Pense em um prato que gosta", TITULO_MENSAGEM, MessageBoxButtons.OKCancel);
@@ -119,6 +122,12 @@ namespace JogoGourmet.Class
             pratos.Add(ConstruirPratoNovo(pratos, ordemPrato));
         }
 
+        /// <summary>
+        /// caso a aplicação não consiga adivinhar o prato do usuário pedir pra que ele insira
+        /// </summary>
+        /// <param name="pratos">Lista dos pratos</param>
+        /// <param name="ordemPrato">Ordem dos pratos</param>
+        /// <returns>Retorna o prato inserido pelo usuário</returns>
         private IPratosGourmet ConstruirPratoNovo(IList<IPratosGourmet> pratos, int ordemPrato)
         {
             string nomePrato = Interaction.InputBox("Qual prato você pensou?", $"{TITULO_MENSAGEM} - Desisto", string.Empty);
@@ -133,12 +142,19 @@ namespace JogoGourmet.Class
             return pratoGourmet;
         }
 
-        private DialogResult VerificarPrato(IList<IPratosGourmet> pratos, int count, bool definicoes)
+        /// <summary>
+        /// Verificar o prato que o usuário escolheu
+        /// </summary>
+        /// <param name="pratos">Lista com os pratos</param>
+        /// <param name="posicao">posicao do prato que o usuário está solicitando a advinhação</param>
+        /// <param name="definicoes">Verficiar se que exibir as definições do prato ou o nome do prato</param>
+        /// <returns>Retorna sim ou não se a aplicação acertou o prato</returns>
+        private DialogResult VerificarPrato(IList<IPratosGourmet> pratos, int posicao, bool definicoes)
         {
             if (definicoes)
-                return MessageBox.Show($"O prato que pensou é {pratos[count].TipoPrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                return MessageBox.Show($"O prato que pensou é {pratos[posicao].TipoPrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-            return MessageBox.Show($"O prato que pensou é {pratos[count].NomePrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            return MessageBox.Show($"O prato que pensou é {pratos[posicao].NomePrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
         }        
 
         private void EscolhaCerta()
