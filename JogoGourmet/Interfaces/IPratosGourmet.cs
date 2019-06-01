@@ -3,15 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace JogoGourmet.Interfaces
 {
-    public interface IGourmet
+    public interface IPratosGourmet
     {
-        DialogResult RespostaUsuario {get; set;}
-
-        void IniciarPergunta();
-        
+        string NomePrato { get; set; }
+        string TipoPrato { get; set; }
     }
 }

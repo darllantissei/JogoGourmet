@@ -14,9 +14,11 @@ namespace JogoGourmet
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmJogoGourmet());
+            Class.Gourmet gourmet = Class.Gourmet.GetInstancia;
+            do
+            {
+                gourmet.IniciarPergunta();
+            } while (gourmet.RespostaUsuario == DialogResult.OK);
         }
     }
 }

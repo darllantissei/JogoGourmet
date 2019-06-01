@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -47,7 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class\Gourmet.cs" />
+    <Compile Include="Class\PratosGourmet.cs" />
     <Compile Include="Interfaces\IGourmet.cs" />
+    <Compile Include="Interfaces\IPratosGourmet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

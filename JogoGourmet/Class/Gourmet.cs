@@ -1,4 +1,5 @@
 ﻿using JogoGourmet.Interfaces;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,15 @@ namespace JogoGourmet.Class
     {
         private const string TITULO_MENSAGEM = "Jogo Gourmet";
 
-        public DialogResult RespostaUsuario { get; private set; }
+        public DialogResult RespostaUsuario { get; set; }
 
-        private static Gourmet instancia = null;
+        private IPratosGourmet PratosGourmetNaoMassa { get; set; }
+        private IPratosGourmet PratosGourmetMassa { get; set; }
+
+        private IList<IPratosGourmet> ListaPratosMassa { get; set; }
+        private IList<IPratosGourmet> ListaPratosNaoMassa { get; set; }
+
+        private static readonly Gourmet instancia = null;
 
         public static Gourmet GetInstancia
         {
@@ -29,27 +36,114 @@ namespace JogoGourmet.Class
 
         public Gourmet()
         {
-            IniciarPergunta();
+            // Pratos iniciais
+            PratosGourmetMassa = new PratosGourmet { NomePrato = "Lasanha", TipoPrato = string.Empty };
+            PratosGourmetNaoMassa = new PratosGourmet { NomePrato = "Bolo de Chocolate", TipoPrato = string.Empty };
+
+            ListaPratosMassa = new List<IPratosGourmet>
+            {
+                PratosGourmetMassa
+            };
+            ListaPratosNaoMassa = new List<IPratosGourmet>
+            {
+                PratosGourmetNaoMassa
+            };            
         }
 
-        private void IniciarPergunta()
+        public void IniciarPergunta()
         {
-            RespostaUsuario = MessageBox.Show("Pense em um prato que gosta", TITULO_MENSAGEM, MessageBoxButtons.OK);
+            RespostaUsuario = MessageBox.Show("Pense em um prato que gosta", TITULO_MENSAGEM, MessageBoxButtons.OKCancel);
 
-            TipoPrato();
-        }
+            if (RespostaUsuario == DialogResult.Cancel)
+                return;
 
-        private void TipoPrato()
-        {
             RespostaUsuario = MessageBox.Show("O prato que você pensou é massa?", TITULO_MENSAGEM, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (RespostaUsuario == DialogResult.Yes)
-                EscolhePratoLasanha();
+                AdivinharTipoPrato(ListaPratosMassa);
+            else
+                AdivinharTipoPrato(ListaPratosNaoMassa);
         }
 
-        private void EscolhePratoLasanha()
+        private void AdivinharTipoPrato(IList<IPratosGourmet> pratos)
         {
-            RespostaUsuario = MessageBox.Show("O prato que você pensou é Lasanha?")
+            int count;
+            int tamanhoLista = pratos.Count - 1;
+
+            // Verificar as caracteristicas do prato pensado
+            for (count = tamanhoLista; count > 0; count--)
+            {
+                RespostaUsuario = VerificarPrato(pratos, count, true);
+
+                // De acordo com prato escolhido verificar a caracteristica
+                if (RespostaUsuario == DialogResult.Yes)
+                {
+                    RespostaUsuario = VerificarPrato(pratos, count, false);
+
+                    // Caso seja o prato que o usuário escolheu mostrar a mensagem que a aplicação adivinhou
+                    if (RespostaUsuario == DialogResult.Yes)
+                    {
+                        EscolhaCerta();
+                        break;
+                    }
+                    else if (RespostaUsuario == DialogResult.No && count == 0)
+                    {
+                        // Caso não tenha acertado, desistir e pedir para o usuário inserir o prato
+                        InserirPrato(pratos, count);
+                        break;
+                    }
+                }
+            }
+
+            // Caso tenha percorrido todas as opções e não encontrou, matenho as opções pré-cadastradas(Lasanha e Bolo de Chocolate)
+            // Se o usuário confirmar os pré-cadastro mostrar a mensagem que a aplicação acertou
+            if (count == 0)
+            {
+                RespostaUsuario = VerificarPrato(pratos, count, false);
+
+                if (RespostaUsuario == DialogResult.Yes)
+                {
+                    EscolhaCerta();
+                    return;
+                }
+
+                InserirPrato(pratos, count);
+
+                // Informar que o usuário ainda está tentando ver se a aplicação adivinha seu prato
+                RespostaUsuario = DialogResult.OK;
+            }
+        }
+
+        private void InserirPrato(IList<IPratosGourmet> pratos, int ordemPrato)
+        {
+            pratos.Add(ConstruirPratoNovo(pratos, ordemPrato));
+        }
+
+        private IPratosGourmet ConstruirPratoNovo(IList<IPratosGourmet> pratos, int ordemPrato)
+        {
+            string nomePrato = Interaction.InputBox("Qual prato você pensou?", $"{TITULO_MENSAGEM} - Desisto", string.Empty);
+            string tipoPrato = Interaction.InputBox($"{nomePrato} é __________ mas {pratos[ordemPrato].NomePrato} não.", $"{TITULO_MENSAGEM} - Complete", string.Empty);
+
+            IPratosGourmet pratoGourmet = new PratosGourmet
+            {
+                NomePrato = nomePrato,
+                TipoPrato = tipoPrato
+            };
+
+            return pratoGourmet;
+        }
+
+        private DialogResult VerificarPrato(IList<IPratosGourmet> pratos, int count, bool definicoes)
+        {
+            if (definicoes)
+                return MessageBox.Show($"O prato que pensou é {pratos[count].TipoPrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            return MessageBox.Show($"O prato que pensou é {pratos[count].NomePrato}?", $"{TITULO_MENSAGEM} - Confirma", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        }        
+
+        private void EscolhaCerta()
+        {
+            RespostaUsuario = MessageBox.Show("Acertei de novo!", TITULO_MENSAGEM, MessageBoxButtons.OK, MessageBoxIcon.Information);            
         }
     }
 }
